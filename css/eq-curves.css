@@ -1,0 +1,37 @@
+/* eq-curves.css */
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+#frame {
+  max-width: fit-content;
+  margin-inline: auto;
+}
+
+.dbhz {
+  display: grid; 
+  grid-template-columns: 200px 200px 200px 200px; 
+  grid-template-rows: min-content min-content min-content; 
+  gap: 0px 0px; 
+  grid-template-areas: 
+	". . . ."
+	". . . ."
+	". . . ."; 
+  gap: 6px 0px; 
+}
+.curves {
+  display: grid; 
+  grid-template-columns: 100px 200px 200px 200px 100px; 
+  grid-template-rows: min-content min-content min-content; 
+  gap: 0px 0px; 
+  justify-items: center;
+  align-items: center;
+  grid-template-areas: 
+	". . . . ."
+	". . . . ."
+	". . . . ."; 
+  gap: 6px 0px; 
+}
