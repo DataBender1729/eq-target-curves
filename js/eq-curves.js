@@ -122,22 +122,24 @@ function intermediateValues(curveType, startHz, startdB, endHz, enddB, steps) {
 	// create a hz schedule
 	schedule = hzSchedule(startHz, endHz);
 	schedule.forEach((hZ) => {
-		dB = 0
-		switch (curveType) {
-			case "linear": 
-				dB = startdB + (enddB-startdB) * (hZ-startHz) / (endHz-startHz);
-				break;
-			case "curved":
-				Hz1000 = 1000 * (hZ - startHz) / (endHz - startHz);
-				dB1000 = 1-curvevalue(Hz1000, startdB-enddB)/(startdB-enddB);
-				dB = startdB + dB1000 * (enddB-startdB);
-				break;
-			case "cosine": 
-				p = (hZ-startHz)/(endHz-startHz) * Math.PI;
-				s = -((Math.cos(p)+1)/2 -1);
-				dB = startdB + s * (enddB - startdB);
-				break;
-		} 
+		dB = startdB
+		if (startdB != enddB) { 
+			switch (curveType) {
+				case "linear": 
+					dB = startdB + (enddB-startdB) * (hZ-startHz) / (endHz-startHz);
+					break;
+				case "curved":
+					Hz1000 = 1000 * (hZ - startHz) / (endHz - startHz);
+					dB1000 = 1-curvevalue(Hz1000, startdB-enddB)/(startdB-enddB);
+					dB = startdB + dB1000 * (enddB-startdB);
+					break;
+				case "cosine": 
+					p = (hZ-startHz)/(endHz-startHz) * Math.PI;
+					s = -((Math.cos(p)+1)/2 -1);
+					dB = startdB + s * (enddB - startdB);
+					break;
+			} 
+		}
 		retval.push([hZ, dB]);
 	})
 	return retval;
