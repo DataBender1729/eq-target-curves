@@ -191,7 +191,7 @@ function generateText() {
 	// Create textual representation (you can customize this part)
 	const representation = 
 `NAME
-EQ Target Curve Generator v0.1
+EQ Target Curve Generator - https://databender1729.github.io/eq-target-curves/
 DEVICENAME
 Unnamed
 BREAKPOINTS
