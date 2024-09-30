@@ -99,13 +99,13 @@ function hzSchedule(startHz, endHz) {
 	}
 	// if between 100 and 200, add a step every 10 Hz
 	if (startHz < 200 && endHz > 100) {
-		for (let hZ = Math.max(startHz,100); hZ < 200; hZ = hZ + 10) {
+		for (let hZ = Math.max(startHz,100); hZ < Math.min(200,endHz); hZ = hZ + 10) {
 			schedule.push(hZ);
 		}
 	}
 	// if between 200 and 400, add a step every 20 Hz
 	if (startHz < 400 && endHz > 200) {
-		for (let hZ = Math.max(startHz,200); hZ < 400; hZ = hZ + 20) {
+		for (let hZ = Math.max(startHz,200); hZ < Math.min(400,endHz); hZ = hZ + 20) {
 			schedule.push(hZ);
 		}
 	}
