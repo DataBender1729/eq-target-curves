@@ -89,66 +89,53 @@ function curvevalue(hz, db) {
 	return m*x+b;
 }
 
-function hzSchedule(startHz, endHz) {
+function hzScheduleOctaves(startHz, endHz, nth) {
 	schedule = [];
-	// if below 100, start with the startHz and add a step every 5 Hz:
-	if (startHz < 100) {
-		for (let hZ = startHz; hZ < Math.min(100,endHz); hZ = hZ + 5) {
-			schedule.push(hZ);
-		}
-	}
-	// if between 100 and 200, add a step every 10 Hz
-	if (startHz < 200 && endHz > 100) {
-		for (let hZ = Math.max(startHz,100); hZ < Math.min(200,endHz); hZ = hZ + 10) {
-			schedule.push(hZ);
-		}
-	}
-	// if between 200 and 400, add a step every 20 Hz
-	if (startHz < 400 && endHz > 200) {
-		for (let hZ = Math.max(startHz,200); hZ < Math.min(400,endHz); hZ = hZ + 20) {
-			schedule.push(hZ);
-		}
-	}
-	//beyond 400, add 10 more evenly spaced out steps, but at least 50 apart
-	for (let hZ = Math.max(startHz, 400); hZ < endHz; hZ = hZ + Math.max(50,((endHz-Math.max(startHz, 400))/ 10))) {
+	hZ = startHz
+	i = 1
+	while(hZ < endHz) {
 		schedule.push(hZ);
+		hZ = Math.pow(2, i/nth) * startHz		
+		i = i + 1
 	}
-	
 	return schedule;
 }
 
-function intermediateValues(curveType, startHz, startdB, endHz, enddB, steps) {
+function intermediateValues(curveType, startHz, startdB, endHz, enddB, steps, schedule) {
 	retval = [];
-	// create a hz schedule
-	schedule = hzSchedule(startHz, endHz);
 	schedule.forEach((hZ) => {
-		dB = startdB
-		if (startdB != enddB) { 
-			switch (curveType) {
-				case "linear": 
-					dB = startdB + (enddB-startdB) * (hZ-startHz) / (endHz-startHz);
-					break;
-				case "curved":
-					Hz1000 = 1000 * (hZ - startHz) / (endHz - startHz);
-					dB1000 = 1-curvevalue(Hz1000, startdB-enddB)/(startdB-enddB);
-					dB = startdB + dB1000 * (enddB-startdB);
-					break;
-				case "cosine": 
-					p = (hZ-startHz)/(endHz-startHz) * Math.PI;
-					s = -((Math.cos(p)+1)/2 -1);
-					dB = startdB + s * (enddB - startdB);
-					break;
-			} 
+		if ((hZ >= startHz) && (hZ < endHz)) {
+			dB = startdB
+			if (startdB != enddB) { 
+				switch (curveType) {
+					case "linear": 
+						dB = startdB + (enddB-startdB) * (hZ-startHz) / (endHz-startHz);
+						break;
+					case "curved":
+						Hz1000 = 1000 * (hZ - startHz) / (endHz - startHz);
+						dB1000 = 1-curvevalue(Hz1000, startdB-enddB)/(startdB-enddB);
+						dB = startdB + dB1000 * (enddB-startdB);
+						break;
+					case "cosine": 
+						p = (hZ-startHz)/(endHz-startHz) * Math.PI;
+						s = -((Math.cos(p)+1)/2 -1);
+						dB = startdB + s * (enddB - startdB);
+						break;
+				} 
+			}
+			retval.push([hZ, dB]);
 		}
-		retval.push([hZ, dB]);
 	})
 	return retval;
 }
 
-function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh) {
-	values = intermediateValues(curveTypeLow, startHz, startdB, lowCutoffHz, lowCutoffdB, 20);
-	values = values.concat(intermediateValues(curveTypeMid, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, 20));
-	values = values.concat(intermediateValues(curveTypeHigh, highCutoffHz, highCutoffdB, endHz, enddB, 20));
+function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps) {
+	// create a hz schedule
+	schedule = hzScheduleOctaves(startHz, endHz, octaveSteps);
+	// get the values
+	values = intermediateValues(curveTypeLow, startHz, startdB, lowCutoffHz, lowCutoffdB, 20, schedule);
+	values = values.concat(intermediateValues(curveTypeMid, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, 20, schedule));
+	values = values.concat(intermediateValues(curveTypeHigh, highCutoffHz, highCutoffdB, endHz, enddB, 20, schedule));
 	values.push([endHz, enddB]);
 	return values;
 }
@@ -165,6 +152,7 @@ function generateText() {
 	document.getElementById('downloadbutton').disabled=true;
 	
 	// Retrieve input values
+	const octaveSteps = Math.max(0,Math.min(100, parseFloat(document.getElementById('octaveSteps').value)));
 	const startHz = parseFloat(document.getElementById('startHz').value);
 	const lowCutoffHz = parseFloat(document.getElementById('lowCutoffHz').value);
 	const highCutoffHz = parseFloat(document.getElementById('highCutoffHz').value);
@@ -186,7 +174,7 @@ function generateText() {
 	}
 	
 	//Compute Hz/dB values
-	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh)
+	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps)
 	document.getElementById('filename').value = generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh)
 	valuesText = valuesToText(values)
 	

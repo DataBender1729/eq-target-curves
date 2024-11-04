@@ -18,9 +18,14 @@
 	<div id="frame">
 		<h1>EQ Target Curve Generator</h1>
 		<form id="filterForm">
+			<div class="otherparameters">
+			<!-- Numerical inputs -->
+				<div><label for="octaveSteps">Steps per octave:</label><br><input type="number" id="octaveSteps" name="octaveSteps" value="3" required></div>
+			</div>
+			<hr>
 			<div class="dbhz">
 				<!-- Numerical inputs -->
-				<div><label for="startHz">Start Hz:</label><input type="number" id="startHz" name="startHz" value="1" required></div>
+				<div><label for="startHz">Start Hz:</label><input type="number" id="startHz" name="startHz" value="10" required></div>
 				
 				<div><label for="lowCutoffHz">Low Cut-off Hz:</label>
 				<input type="number" id="lowCutoffHz" name="lowCutoffHz" value="1000" required></div>
@@ -69,6 +74,7 @@
 				
 				<div></div>
 			</div>
+			<hr>
 			<!-- Button to generate -->
 			<button type="button" onclick="generateText()" class="full-width" id="generatebutton">Generate</button>
 		</form>
