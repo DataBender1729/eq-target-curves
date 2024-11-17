@@ -9,7 +9,12 @@
 	<link rel="stylesheet" href="css/eq-curves.css">
 	<!-- JavaScript function to handle sequence generation and graph drawing-->
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="js/eq-curves.js"></script>
+	<script type="text/javascript" src="js/eq-curves.js"></script>
+    <script type="text/javascript">
+	  window.onload=function(){
+        document.getElementById("generatebutton").click();
+      }
+	 </script>
     <title>EQ Target Curve Generator</title>
 </head>
 <body>
@@ -81,12 +86,13 @@
 		<div></div>
 		<!-- Output text field, download button and chart-->
 		<textarea id="output" rows="20" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
-		<div><label for="filename">Filename:</label> <input type="text" id="filename" name="startdB" size="75"> <button type="button" id="downloadbutton" onclick="saveText()" disabled="True">Dowload file</button></div>
+		<div><label for="filename">Filename:</label> <input type="text" id="filename" name="filename" size="75"> <button type="button" id="downloadbutton" onclick="saveText()" disabled="True">Dowload file</button></div>
 		<div id="curve_chart" style="width: 780px; height: 350px; align:center;"></div>
 		<div style="width: 780px">
 			Instructions:<br>
 			Pick four Hz/dB reference points and 3 functions to blend between them.<br>
 			Click generate to create a target curve file to download and use in your room correction software (e.g., Dirac Live).<br>
+			If you want to apply PEQ filters to the target curve, copy the output and take it to the <a href="target_curve_peq.html">Target Curve PEQ tool</a><br>
 			<br>Curve types:
 			<ul style="margin-top: 0;">
 			  <li>Linear: Just a line from the starting dB to the end dB</li>

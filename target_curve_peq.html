@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/eq-curves.css">
+	<!-- JavaScript function to handle sequence generation and graph drawing-->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.2.2/math.js" ></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="js/eq-curves.js?test3"></script>
+    <title>Target Curve PEQ</title>
+</head>
+<body>
+
+    <!-- Input fields and button will go here -->
+	<div id="frame">
+		<h1>Target Curve PEQ</h1>
+		<form id="targetCurvePEQForm">
+			<div>
+				<label for="targetcurve">Paste a target curve file:</label><br>
+				<textarea id="targetcurve" rows="20" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
+			</div>
+			<div>
+				<label for="peq">Paste a 96kHz biquad PEQ file:</label><br>
+				<textarea id="peq" rows="20" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
+			</div>
+			<button type="button" onclick="generateCombinedText()" class="full-width" id="generatebutton">Generate new target curve</button>
+		</form>
+		<div></div>
+		<!-- Output text field, download button and chart-->
+		<div>
+			<label for="targetcurve">New Target Curve with PEQ applied:</label><br>
+			<textarea id="output" rows="20" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
+		</div>
+		<div><label for="filename">Filename:</label> <input type="text" id="filename" name="filename" size="75"> <button type="button" id="downloadbutton" onclick="saveText()" disabled="True">Dowload file</button></div>
+		<div id="curve_chart" style="width: 780px; height: 350px; align:center;"></div>
+		<div style="width: 780px">
+			Instructions:<br>
+			Paste a target curve you want to further tweak (e.g., from <a href="./">the target curve generator</a> and a biquad file (e.g. from REW PEQ) that defines the tweaks.<br>
+			Click generate to create a new target curve file to download and use in your room correction software (e.g., Dirac Live).<br>
+			Notes:<br>
+			The PEQ filters are applied at the positions of the existing target curve frequencies. You may want to make sure that there are enough intermediate values to accuratly represent low-bandwidth filters (e.g., 6 per octave in the target curve generator)
+		</div>
+	</div>
+    
+</body>
+</html>

@@ -1,10 +1,8 @@
 google.charts.load('current', {'packages':['corechart']});
-//google.charts.setOnLoadCallback(drawChart);
 
- window.onload=function(){
-      document.getElementById("generatebutton").click();
- }
-	  
+
+const peqMaxHz = 96000
+
 const hertz = [
   0, 10, 20, 30, 40, 50, 60, 70, 80, 90,
   100, 110, 120, 130, 140, 150, 160, 180,
@@ -231,4 +229,90 @@ function drawChart(values) {
 
 	chart.draw(data, options);
 }
-	 	  
+
+function biquad3(c1, c2 , c3, f) {
+	return math.sum(
+		math.multiply(c1, math.exp(math.complex(0, 0))),
+		math.multiply(c2, math.exp(math.complex(0, -2 * math.PI * f))),
+		math.multiply(c3, math.exp(math.complex(0, -4 * math.PI * f)))
+	)
+}
+
+function transferFunction(b0, b1, b2, a0, a1, a2, f) {
+	var enumerator = biquad3(b0, b1, b2, f)
+	var denominator = biquad3(a0, a1, a2, f)
+	return math.abs(math.divide(enumerator, denominator))
+}
+
+function scaleResponse(x) {
+	return math.log10(x)*20
+}
+
+function readPEQs(textRepresentation) {
+	var peqs = []
+	const lines = textRepresentation.split(/\r?\n/);
+	// look for biquadN
+	idx = 0
+	const re = /([ab][012])=(-?[0-9]+\.[0-9]*?),?$/
+	while (lines[idx].startsWith("biquad") && (idx < 600)) {
+		idx = idx + 1
+		peq = {}
+		while (result = lines[idx].match(re)) {
+			peq[result[1]] = parseFloat(result[2])
+			idx = idx + 1
+		}
+		if (!("a0" in peq) ) {
+			peq["a0"] = 1.0
+		}
+		peqs.push(peq)
+	}
+	return peqs
+}
+
+function readTargetCurve(textRepresentation) {
+	var target = {}
+	const lines = textRepresentation.split(/\r?\n/);
+	const re = /([0-9]+\.?[0-9]*?) (-?[0-9]+\.?[0-9]*?)$/
+	idx = 0
+	while ((!(lines[idx].startsWith("BREAKPOINTS"))) && (idx < 600)) {
+		idx = idx + 1
+	}
+	idx = idx + 1
+	if (idx < 600) { 
+		target["preamble"] = lines.slice(0,idx).join('\n')
+		bps = []
+		while (result = lines[idx].match(re)) {
+			bps.push([parseFloat(result[1]), parseFloat(result[2])])
+			idx = idx + 1
+		}
+		target["breakpoints"] = bps
+		target["appendix"] = lines.slice(idx).join('\n')
+	}
+	return target	
+
+	
+}
+
+function generateCombinedText() {
+	document.getElementById('downloadbutton').disabled=true;
+	var target = readTargetCurve(document.getElementById('targetcurve').value)
+	var peqs = readPEQs(document.getElementById('peq').value)
+	breakpoints = target["breakpoints"]
+	outputText = target["preamble"] + "\n"
+	values = []
+	for (const bp of breakpoints) {
+		f = bp[0]
+		dB = bp[1]
+		for (const p of peqs) {	
+			r = scaleResponse(transferFunction(p["b0"], p["b1"], p["b2"], p["a0"], -p["a1"], -p["a2"], f/peqMaxHz))
+			dB = dB + r
+		}
+		outputText = outputText + f + ": " + dB + "\n"
+		values.push([f, dB])
+	}
+	outputText = outputText + target["appendix"] 
+	document.getElementById('output').value = outputText;
+	drawChart(values)
+	document.getElementById('filename').value = "EQ-TargetCurve-PEQed-" + new Date().toISOString() +  ".targetcurve"
+	document.getElementById('downloadbutton').disabled=false;
+}
