@@ -253,11 +253,11 @@ function readPEQs(textRepresentation) {
 	const lines = textRepresentation.split(/\r?\n/);
 	// look for biquadN
 	idx = 0
-	const re = /([ab][012])=(-?[0-9]+\.[0-9]*?),?$/
-	while (lines[idx].startsWith("biquad") && (idx < 600)) {
+	const re = /([ab][012])=(-?[0-9]*.?[0-9]+),?$/
+	while ((idx < Math.min(lines.length, 600)) && lines[idx].startsWith("biquad")) {
 		idx = idx + 1
 		peq = {}
-		while (result = lines[idx].match(re)) {
+		while ((idx < Math.min(lines.length, 600)) && (result = lines[idx].match(re))) {
 			peq[result[1]] = parseFloat(result[2])
 			idx = idx + 1
 		}
@@ -274,23 +274,21 @@ function readTargetCurve(textRepresentation) {
 	const lines = textRepresentation.split(/\r?\n/);
 	const re = /([0-9]+\.?[0-9]*?) (-?[0-9]+\.?[0-9]*?)$/
 	idx = 0
-	while ((!(lines[idx].startsWith("BREAKPOINTS"))) && (idx < 600)) {
+	while ((idx < Math.min(lines.length, 600)) && (!(lines[idx].startsWith("BREAKPOINTS")))) {
 		idx = idx + 1
 	}
 	idx = idx + 1
 	if (idx < 600) { 
 		target["preamble"] = lines.slice(0,idx).join('\n')
 		bps = []
-		while (result = lines[idx].match(re)) {
+		while ((idx < Math.min(lines.length, 600)) && (result = lines[idx].match(re))) {
 			bps.push([parseFloat(result[1]), parseFloat(result[2])])
 			idx = idx + 1
 		}
 		target["breakpoints"] = bps
 		target["appendix"] = lines.slice(idx).join('\n')
 	}
-	return target	
-
-	
+	return target
 }
 
 function generateCombinedText() {
@@ -311,7 +309,7 @@ function generateCombinedText() {
 		values.push([f, dB])
 	}
 	outputText = outputText + target["appendix"] 
-	document.getElementById('output').value = outputText;
+	document.getElementById('output').value = outputText
 	drawChart(values)
 	document.getElementById('filename').value = "EQ-TargetCurve-PEQed-" + new Date().toISOString() +  ".targetcurve"
 	document.getElementById('downloadbutton').disabled=false;
@@ -319,4 +317,38 @@ function generateCombinedText() {
 
 function setDefault(target, source) {
 	document.getElementById(target).value = document.getElementById(source).value
+}
+
+function peakFilter(f, q, g) {
+	var V = Math.pow(10, Math.abs(g) / 20)
+	var K = Math.tan(Math.PI * f / peqMaxHz)
+	var V1 = K / q
+	var Vq = K * V/q
+	var K2 = Math.pow(K, 2)
+	var K21 =  K2 - 1
+	var a0 = 1 + V1 + K2
+	peq = {
+		"a0": 1.0,
+		"a1": -2 * K21 / a0,
+		"a2": -(1 - V1 + K2) / a0,
+		"b0": (1 + Vq + K2) / a0,
+		"b1": 2 * K21 / a0,
+		"b2": (1 - Vq + K2) / a0
+	}
+	return peq
+}
+
+function biquadToText(peq, n) {
+	var orderedKeys
+	if ("a0" in peq) {
+		orderedKeys = ["b0", "b1", "b2", "a0", "a1", "a2"]
+	} else {
+		orderedKeys = ["b0", "b1", "b2", "a1", "a2"]
+	}
+	output = "biquad" + n + ",\n"
+	for (key of orderedKeys) {
+		output = output + key + "=" + peq[key]+ ",\n"
+	}
+	return output
+	
 }
