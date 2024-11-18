@@ -15,17 +15,17 @@
         document.getElementById("generatebutton").click();
       }
 	 </script>
-    <title>EQ Target Curve Generator</title>
+    <title>Room Correction Target Curve Generator</title>
 </head>
 <body>
 
     <!-- Input fields and button will go here -->
 	<div id="frame">
-		<h1>EQ Target Curve Generator</h1>
+		<h1>Room Correction Target Curve Generator</h1>
 		<form id="filterForm">
 			<div class="otherparameters">
 			<!-- Numerical inputs -->
-				<div><label for="octaveSteps">Steps per octave:</label><br><input type="number" id="octaveSteps" name="octaveSteps" value="3" required></div>
+				<div><label for="octaveSteps">Steps per octave:</label><br><input type="number" id="octaveSteps" name="octaveSteps" value="6" required></div>
 			</div>
 			<hr>
 			<div class="dbhz">
@@ -42,7 +42,7 @@
 				<input type="number" id="endHz" name="endHz" value="24000" required></div>
 				
 				<div><label for="startdB">Start dB:</label>
-				<input type="number" id="startdB" name="startdB" value="12" required></div>
+				<input type="number" id="startdB" name="startdB" value="7" required></div>
 				
 				<div><label for="lowCutoffdB">Low Cut-off dB:</label>
 				<input type="number" id="lowCutoffdB" name="lowCutoffdB" value="0" required></div>

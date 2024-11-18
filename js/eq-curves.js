@@ -316,3 +316,7 @@ function generateCombinedText() {
 	document.getElementById('filename').value = "EQ-TargetCurve-PEQed-" + new Date().toISOString() +  ".targetcurve"
 	document.getElementById('downloadbutton').disabled=false;
 }
+
+function setDefault(target, source) {
+	document.getElementById(target).value = document.getElementById(source).value
+}

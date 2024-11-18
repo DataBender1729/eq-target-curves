@@ -20,7 +20,7 @@
 		<h1>Target Curve PEQ</h1>
 		<form id="targetCurvePEQForm">
 			<div>
-				<label for="targetcurve">Paste a target curve file:</label><br>
+				<label for="targetcurve">Paste a target curve file (defaults: <a href="" onclick="setDefault('targetcurve', 'defaultTargetFlat'); return false;">flat</a>, <a href="" onclick="setDefault('targetcurve', 'defaultTargetH7'); return false;">h7</a>, create your own using the <a href="./">target curve generator</a>):</label><br>
 				<textarea id="targetcurve" rows="20" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
 			</div>
 			<div>
@@ -44,6 +44,164 @@
 			Notes:<br>
 			The PEQ filters are applied at the positions of the existing target curve frequencies. You may want to make sure that there are enough intermediate values to accuratly represent low-bandwidth filters (e.g., 6 per octave in the target curve generator)
 		</div>
+		<textarea id="defaultTargetH7" hidden="true">
+NAME
+H7 with roll-off from EQ Target Curve Generator - https://databender1729.github.io/eq-target-curves/
+DEVICENAME
+Unnamed
+BREAKPOINTS
+10 7
+11.22 6.99988
+12.6 6.99974
+14.14 6.99959
+15.87 6.99942
+17.82 6.99923
+20 6.99887
+22.45 6.99531
+25.2 6.99131
+28.28 6.98682
+31.75 6.97485
+35.64 6.95538
+40 6.93125
+44.9 6.86971
+50.4 6.79014
+56.57 6.63136
+63.5 6.40908
+71.27 6.09012
+80 5.61243
+89.8 5.04092
+100.79 4.29444
+113.14 3.5473
+126.99 2.7693
+142.54 2.07882
+160 1.49893
+179.59 1.04354
+201.59 0.70181
+226.27 0.45892
+253.98 0.29102
+285.09 0.18612
+320 0.1167
+359.19 0.09527
+403.17 0.08136
+452.55 0.07416
+507.97 0.06665
+570.18 0.05822
+640 0.04877
+718.38 0.03815
+806.35 0.02623
+905.1 0.01286
+1015.94 0
+1140.35 0
+1280 0
+1436.75 0
+1612.7 0
+1810.19 0
+2031.87 0
+2280.7 0
+2560 0
+2873.5 0
+3225.4 0
+3620.39 0
+4063.75 -0.01753
+4561.4 -0.15439
+5120 -0.308
+5747.01 -0.48043
+6450.8 -0.67397
+7240.77 -0.89121
+8127.49 -1.13506
+9122.8 -1.40877
+10240 -1.716
+11494.01 -2.06085
+12901.59 -2.44794
+14481.55 -2.88243
+16254.99 -3.37012
+18245.61 -3.91754
+20480 -4.532
+22988.02 -5.22171
+24000 -5.5
+LOWLIMITHZ
+10
+HIGHLIMITHZ
+24000</textarea>
+		<textarea id="defaultTargetFlat" hidden="true">
+NAME
+Flat from EQ Target Curve Generator - https://databender1729.github.io/eq-target-curves/
+DEVICENAME
+Unnamed
+BREAKPOINTS
+10 0
+11.22 0
+12.6 0
+14.14 0
+15.87 0
+17.82 0
+20 0
+22.45 0
+25.2 0
+28.28 0
+31.75 0
+35.64 0
+40 0
+44.9 0
+50.4 0
+56.57 0
+63.5 0
+71.27 0
+80 0
+89.8 0
+100.79 0
+113.14 0
+126.99 0
+142.54 0
+160 0
+179.59 0
+201.59 0
+226.27 0
+253.98 0
+285.09 0
+320 0
+359.19 0
+403.17 0
+452.55 0
+507.97 0
+570.18 0
+640 0
+718.38 0
+806.35 0
+905.1 0
+1015.94 0
+1140.35 0
+1280 0
+1436.75 0
+1612.7 0
+1810.19 0
+2031.87 0
+2280.7 0
+2560 0
+2873.5 0
+3225.4 0
+3620.39 0
+4063.75 0
+4561.4 0
+5120 0
+5747.01 0
+6450.8 0
+7240.77 0
+8127.49 0
+9122.8 0
+10240 0
+11494.01 0
+12901.59 0
+14481.55 0
+16254.99 0
+18245.61 0
+20480 0
+22988.02 0
+24000 0
+LOWLIMITHZ
+10
+HIGHLIMITHZ
+24000</textarea>
 	</div>
     
 </body>
