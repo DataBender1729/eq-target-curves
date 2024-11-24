@@ -305,7 +305,7 @@ function generateCombinedText() {
 			r = scaleResponse(transferFunction(p["b0"], p["b1"], p["b2"], p["a0"], -p["a1"], -p["a2"], f/peqMaxHz))
 			dB = dB + r
 		}
-		outputText = outputText + f + ": " + dB + "\n"
+		outputText = outputText + f + " " + dB + "\n"
 		values.push([f, dB])
 	}
 	outputText = outputText + target["appendix"] 
