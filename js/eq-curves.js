@@ -79,6 +79,21 @@ function interpolate(hertz, values, hz) {
 	}
 }
 
+
+//compute interpolated value for x linear in logarithmic space 
+function logLinearInterpolate(x, x1, y1, x2, y2) {
+  if (x <= 0 || x1 <= 0 || x2 <= 0) {
+    throw new Error("All x values must be > 0 for log10 to work.");
+  }
+
+  const logX = Math.log10(x);
+  const logX1 = Math.log10(x1);
+  const logX2 = Math.log10(x2);
+  const t = (logX - logX1) / (logX2 - logX1);
+
+  return y1 + t * (y2 - y1);
+}
+
 // take a value hz between 0 and 1000 plus a db value describing the difference between start and end and return a fitting value
 function curvevalue(hz, db) {
 	x = db-12;
@@ -118,6 +133,9 @@ function intermediateValues(curveType, startHz, startdB, endHz, enddB, steps, sc
 						p = (hZ-startHz)/(endHz-startHz) * Math.PI;
 						s = -((Math.cos(p)+1)/2 -1);
 						dB = startdB + s * (enddB - startdB);
+						break;
+					case "log-linear":
+						dB = logLinearInterpolate(hZ, startHz, startdB, endHz, enddB);
 						break;
 				} 
 			}
