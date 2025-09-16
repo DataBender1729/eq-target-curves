@@ -35,11 +35,11 @@
 			<label for="targetcurve">New Target Curve with PEQ applied:</label><br>
 			<textarea id="output" rows="20" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
 		</div>
-		<div><label for="filename">Filename:</label> <input type="text" id="filename" name="filename" size="75"> <button type="button" id="downloadbutton" onclick="saveText()" disabled="True">Dowload file</button></div>
+		<div><label for="filename">Filename:</label> <input type="text" id="filename" name="filename" size="75"> <button type="button" id="downloadbutton" onclick="saveText()" disabled="True">Download file</button></div>
 		<div id="curve_chart" style="width: 780px; height: 350px; align:center;"></div>
 		<div style="width: 780px">
 			Instructions:<br>
-			Paste a target curve you want to further tweak (e.g., from <a href="./">the target curve generator</a> and a biquad file (e.g. from REW PEQ) that defines the tweaks.<br>
+			Paste a target curve you want to further tweak (e.g., from <a href="./">the target curve generator</a>) and a biquad file (e.g. from REW PEQ) that defines the tweaks.<br>
 			Click generate to create a new target curve file to download and use in your room correction software (e.g., Dirac Live).<br>
 			Notes:<br>
 			The PEQ filters are applied at the positions of the existing target curve frequencies. You may want to make sure that there are enough intermediate values to accuratly represent low-bandwidth filters (e.g., 6 per octave in the target curve generator)
