@@ -22,6 +22,17 @@ body {
 	". . . ."; 
   gap: 6px 0px; 
 }
+.otherparameters {
+  display: grid; 
+  grid-template-columns: 200px 200px 200px 200px; 
+  grid-template-rows: min-content min-content min-content; 
+  gap: 0px 0px; 
+  grid-template-areas: 
+	". . . ."
+	". . . ."
+	". . . ."; 
+  gap: 6px 0px; 
+}
 .curves {
   display: grid; 
   grid-template-columns: 100px 200px 200px 200px 100px; 

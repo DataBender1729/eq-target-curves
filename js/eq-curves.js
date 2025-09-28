@@ -145,7 +145,30 @@ function intermediateValues(curveType, startHz, startdB, endHz, enddB, steps, sc
 	return retval;
 }
 
-function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps) {
+function removeRedundant(values) {
+
+    // If we have fewer than 3 points, we can't remove anything
+    if (values.length < 3) return values;
+
+    let result = [values[0]]; // Start with the first point
+
+    for (let i = 1; i < values.length - 1; i++) {
+        const [prevHz, prevdB] = result[result.length - 1]; // Previous point in result
+        const [currentHz, currentdB] = values[i]; // Current point to evaluate
+        const [nextHz, nextdB] = values[i + 1]; // Next point to evaluate
+		loglineardB = logLinearInterpolate(currentHz, prevHz, prevdB, nextHz, nextdB);
+		if (Math.abs(loglineardB - currentdB) >= 1e-3) {
+			result.push(values[i]);
+		}			
+    }
+    // Always include the last point
+    result.push(values[values.length - 1]);
+
+    return result;
+}
+
+
+function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse) {
 	// create a hz schedule
 	schedule = hzScheduleOctaves(startHz, endHz, octaveSteps);
 	// get the values
@@ -153,11 +176,15 @@ function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz
 	values = values.concat(intermediateValues(curveTypeMid, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, 20, schedule));
 	values = values.concat(intermediateValues(curveTypeHigh, highCutoffHz, highCutoffdB, endHz, enddB, 20, schedule));
 	values.push([endHz, enddB]);
+	if (sparse) {
+		values = removeRedundant(values);
+	}
 	return values;
 }
 
-function generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps) {
-	return `EQ-TargetCurve-(${startHz},${startdB})-${curveTypeLow}-(${lowCutoffHz},${lowCutoffdB})-${curveTypeMid}-(${highCutoffHz},${highCutoffdB})-${curveTypeHigh}-(${endHz},${enddB})-${octaveSteps}steps.targetcurve`
+function generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse) {
+	sparseText = sparse ? "-sparse" : "";
+	return `EQ-TargetCurve-(${startHz},${startdB})-${curveTypeLow}-(${lowCutoffHz},${lowCutoffdB})-${curveTypeMid}-(${highCutoffHz},${highCutoffdB})-${curveTypeHigh}-(${endHz},${enddB})-${octaveSteps}steps${sparseText}.targetcurve`
 }
 
 function valuesToText(values) {
@@ -169,6 +196,7 @@ function generateText() {
 	
 	// Retrieve input values
 	const octaveSteps = Math.max(0,Math.min(100, parseFloat(document.getElementById('octaveSteps').value)));
+	const sparse = document.getElementById('sparse').checked;
 	const startHz = parseFloat(document.getElementById('startHz').value);
 	const lowCutoffHz = parseFloat(document.getElementById('lowCutoffHz').value);
 	const highCutoffHz = parseFloat(document.getElementById('highCutoffHz').value);
@@ -190,8 +218,8 @@ function generateText() {
 	}
 	
 	//Compute Hz/dB values
-	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps)
-	document.getElementById('filename').value = generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps)
+	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse)
+	document.getElementById('filename').value = generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse)
 	valuesText = valuesToText(values)
 	
 	// Create textual representation (you can customize this part)
