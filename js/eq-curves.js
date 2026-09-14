@@ -168,7 +168,7 @@ function removeRedundant(values) {
 }
 
 
-function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse) {
+function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost) {
 	// create a hz schedule
 	schedule = hzScheduleOctaves(startHz, endHz, octaveSteps);
 	// get the values
@@ -176,15 +176,36 @@ function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz
 	values = values.concat(intermediateValues(curveTypeMid, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, 20, schedule));
 	values = values.concat(intermediateValues(curveTypeHigh, highCutoffHz, highCutoffdB, endHz, enddB, 20, schedule));
 	values.push([endHz, enddB]);
+	// apply dialog boost
+	switch (dialogBoost) {
+		case "low":
+			values = applyFilter(values, peakFilter(320, 0.75, -1.0))
+			values = applyFilter(values, peakFilter(2200, 0.8, +1.2))
+			values = applyFilter(values, peakFilter(4500, 0.9, +0.4))
+			break;
+		case "medium":
+			values = applyFilter(values, peakFilter(320, 0.75, -1.5))
+			values = applyFilter(values, peakFilter(2200, 0.8, +1.8))
+			values = applyFilter(values, peakFilter(4500, 0.9, +0.7))
+			break;
+		case "high":
+			values = applyFilter(values, peakFilter(320, 0.75, -2.0))
+			values = applyFilter(values, peakFilter(2200, 0.8, +2.5))
+			values = applyFilter(values, peakFilter(4500, 0.9, +1.0))
+			break;
+		default:
+			break;		
+	}
+	// remove redundant points
 	if (sparse) {
 		values = removeRedundant(values);
 	}
 	return values;
 }
 
-function generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse) {
+function generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost) {
 	sparseText = sparse ? "-sparse" : "";
-	return `EQ-TargetCurve-(${startHz},${startdB})-${curveTypeLow}-(${lowCutoffHz},${lowCutoffdB})-${curveTypeMid}-(${highCutoffHz},${highCutoffdB})-${curveTypeHigh}-(${endHz},${enddB})-${octaveSteps}steps${sparseText}.targetcurve`
+	return `EQ-TargetCurve-(${startHz},${startdB})-${curveTypeLow}-(${lowCutoffHz},${lowCutoffdB})-${curveTypeMid}-(${highCutoffHz},${highCutoffdB})-${curveTypeHigh}-(${endHz},${enddB})-${octaveSteps}steps${sparseText}-dialog-${dialogBoost}.targetcurve`
 }
 
 function valuesToText(values) {
@@ -197,6 +218,7 @@ function generateText() {
 	// Retrieve input values
 	const octaveSteps = Math.max(0,Math.min(100, parseFloat(document.getElementById('octaveSteps').value)));
 	const sparse = document.getElementById('sparse').checked;
+	const dialogBoost = document.getElementById('dialogBoost').value;
 	const startHz = parseFloat(document.getElementById('startHz').value);
 	const lowCutoffHz = parseFloat(document.getElementById('lowCutoffHz').value);
 	const highCutoffHz = parseFloat(document.getElementById('highCutoffHz').value);
@@ -218,8 +240,8 @@ function generateText() {
 	}
 	
 	//Compute Hz/dB values
-	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse)
-	document.getElementById('filename').value = generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse)
+	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost)
+	document.getElementById('filename').value = generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost)
 	valuesText = valuesToText(values)
 	
 	// Create textual representation (you can customize this part)
@@ -365,8 +387,20 @@ function setDefault(target, source) {
 	document.getElementById(target).value = document.getElementById(source).value
 }
 
+function applyFilter(values, peq) {
+	newValues = []
+	for (const v of values) {
+		f = v[0]
+		dB = v[1]
+		r = scaleResponse(transferFunction(peq["b0"], peq["b1"], peq["b2"], peq["a0"], -peq["a1"], -peq["a2"], f/peqMaxHz))
+		dB = dB + r
+		newValues.push([f, dB])
+	}
+	return newValues
+}
+
 function peakFilter(f, q, g) {
-	var V = Math.pow(10, Math.abs(g) / 20)
+	var V = Math.pow(10, g / 20)
 	var K = Math.tan(Math.PI * f / peqMaxHz)
 	var V1 = K / q
 	var Vq = K * V/q

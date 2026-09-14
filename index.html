@@ -9,6 +9,7 @@
 	<link rel="stylesheet" href="css/eq-curves.css">
 	<!-- JavaScript function to handle sequence generation and graph drawing-->
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.2.2/math.js" ></script>
 	<script type="text/javascript" src="js/eq-curves.js"></script>
     <script type="text/javascript">
 	  window.onload=function(){
@@ -27,6 +28,14 @@
 			<!-- Numerical inputs -->
 				<div><label for="octaveSteps">Steps per octave:</label><br><input type="number" id="octaveSteps" name="octaveSteps" value="6" required></div>
 				<div><label for="sparse">Sparse steps in flat areas:</label><br><input type="checkbox" id="sparse" name="sparse"></div>
+				<div><label for="dialogBoost">Dialog Boost:</label><br>
+					<select id="dialogBoost" name="dialogBoost">
+						<option value="none" selected="selected">None</option>
+						<option value="low">Low</option>
+						<option value="medium">Medium</option>
+						<option value="high">High</option>
+					</select>
+				</div>
 			</div>
 			<hr>
 			<div class="dbhz">
@@ -104,6 +113,7 @@
 			  <li>Curved: Very similar to the popular harman curves. Amplifies the low end of the curve and then drops quickly.</li>
 			  <li>Cosine: Drops to the halfway dB point after half the Hz-distance in a (co)-sine shape</li>
 			</ul>
+			<br>Dialog Boost: adds a S shaped curve to make dialog easier to understand. Only apply to channels that you have trouble hearing dialog from (e.g., center).
 		</div>
 	</div>
     
