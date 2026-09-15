@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="css/eq-curves.css">
 	<!-- JavaScript function to handle sequence generation and graph drawing-->
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.2.2/math.js" ></script>
 	<script type="text/javascript" src="js/eq-curves.js"></script>
-    <script type="text/javascript">
-	  window.onload=function(){
-        document.getElementById("generatebutton").click();
-      }
+		<script type="text/javascript">
+		window.onload=function(){
+				document.getElementById("generatebutton").click();
+			}
 	 </script>
-    <title>Room Correction Target Curve Generator</title>
+		<title>Room Correction Target Curve Generator</title>
 </head>
 <body>
 
-    <!-- Input fields and button will go here -->
+		<!-- Input fields and button will go here -->
 	<div id="frame">
 		<h1>Room Correction Target Curve Generator</h1>
 		<form id="filterForm">
@@ -85,17 +85,75 @@
 				
 				<div></div>
 			</div>
-			<hr>
+			<br>
 			<!-- Biquads -->
-			<div>
-				<label for="peq">Optionally paste a 96kHz biquad PEQ file to season (examples: 
-				<a href="" onclick="document.getElementById('peq').value+=biquadToText(peakFilter(320, 0.75, -1.0)); return false;")>-vocal boom</a>
-				<a href="" onclick="document.getElementById('peq').value+=biquadToText(peakFilter(2200, 0.8, +1.2))+biquadToText(peakFilter(4500, 0.9, +0.4)); return false;")>+vocal presence</a>
-				):</label><br>
-				<textarea id="peq" rows="14" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
-			</div>
+			<details>
+				<summary>Click to add addition parametric EQing</summary>
+				<div class ="content">
+					<br>
+					<label for="peq">Optionally paste a 96kHz biquad PEQ file and/or use these presets:<br><br>
+					<!-- <a href="" title="peakFilter(320, 0.75, -1.0)" onclick="document.getElementById('peq').value+=biquadToText(peakFilter(320, 0.75, -1.0)); return false;">- vocal warmth</a>
+					<a href="" title="peakFilter(320, 0.75, +1.0)" onclick="document.getElementById('peq').value+=biquadToText(peakFilter(320, 0.75, +1.0)); return false;">+ vocal warmth</a>
+					<a href="" title="peakFilter(2200, 0.8, +1.2) + peakFilter(4500, 0.9, +0.4)" onclick="document.getElementById('peq').value+=biquadToText(peakFilter(2200, 0.8, +1.2))+biquadToText(peakFilter(4500, 0.9, +0.4)); return false;">+ vocal presence</a>
+					<a href="" title="peakFilter(2200, 0.8, -1.2) + peakFilter(4500, 0.9, -0.4)" onclick="document.getElementById('peq').value+=biquadToText(peakFilter(2200, 0.8, -1.2))+biquadToText(peakFilter(4500, 0.9, -0.4)); return false;">- vocal presence</a>
+					
+					</label><br>-->
+					<select id="dialogTreatment">
+						Preset filters: <option value="">Select a filter...</option>
+
+						<optgroup label="Dialog level">
+							<option value="liftDialogLevelLow">Lift dialog level a (low)</option>
+							<option value="liftDialogLevelMedium">Lift dialog level a (medium)</option>
+							<option value="liftDialogLevelHigh">Lift dialog level a (high)</option>
+						</optgroup>
+						<optgroup label="Dialog separation">
+							<option value="liftBackground">Lift dialog from background</option>
+							<option value="liftBackgroundStrong">Lift dialog from background strongly</option>
+						</optgroup>
+						<optgroup label="Complete dialog presets">
+							<option value="dialogMild">Dialog clarity — Mild</option>
+							<option value="dialogModerate">Dialog clarity — Moderate</option>
+							<option value="dialogStrong">Dialog clarity — Strong</option>
+						</optgroup>
+						<optgroup label="Voice character">
+							<option value="addWarmth">Add warmth</option>
+							<option value="removeWarmth">Reduce warmth</option>
+							<option value="reduceBoxiness">Reduce boxiness</option>
+							<option value="reduceChestiness">Reduce chestiness</option>
+						</optgroup>
+						<optgroup label="Speech clarity">
+							<option value="addPresence">Add presence</option>
+							<option value="addPresenceStrong">Add strong presence</option>
+							<option value="consonantClarity">Enhance consonants</option>
+							<option value="speechDefinition">Increase speech definition</option>
+						</optgroup>
+						<optgroup label="High-frequency character">
+							<option value="softenSibilance">Soften sibilance</option>
+							<option value="restoreArticulation">Restore articulation</option>
+							<option value="addAir">Add air</option>
+							<option value="reduceBrightness">Reduce brightness</option>
+						</optgroup>
+						
+					</select>
+					<button type="button" id="addDialogTreatment" disabled>
+						Add filter
+					</button>
+					<br><br>
+					<div id="dialogDescription" style="width:780px;">
+						Select a filter to see what it does.
+					</div>
+					<br>
+					<div id="dialogFilters"></div>
+
+					
+					<textarea id="peq" rows="14" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
+				</div>
+			</details>
+			<hr>
+			<br>
 			<!-- Button to generate -->
-			<button type="button" onclick="generateText(document.getElementById('peq').value)" class="full-width" id="generatebutton">Generate</button>
+			<button type="button" onclick="generateText(document.getElementById('peq').value)" class="full-width" id="generatebutton">Generate Target Curve</button>
+			<br>
 		</form>
 		<div></div>
 		<!-- Output text field, download button and chart-->
@@ -111,15 +169,262 @@
 			Click generate to create a target curve file to download and use in your room correction software (e.g., Dirac Live).<br>			
 			<br>Curve types:
 			<ul style="margin-top: 0;">
-			  <li>Linear: Just a line from the starting dB to the end dB (will look curved in log Hz-space). </li>
-			  <li>Log-Linear: A straight drop in logarithmic space (will look straight in log Hz-space).</li>
-			  <li>Curved: Very similar to the popular harman curves. Amplifies the low end of the curve and then drops quickly.</li>
-			  <li>Cosine: Drops to the halfway dB point after half the Hz-distance in a (co)-sine shape</li>
+				<li>Linear: Just a line from the starting dB to the end dB (will look curved in log Hz-space). </li>
+				<li>Log-Linear: A straight drop in logarithmic space (will look straight in log Hz-space).</li>
+				<li>Curved: Very similar to the popular harman curves. Amplifies the low end of the curve and then drops quickly.</li>
+				<li>Cosine: Drops to the halfway dB point after half the Hz-distance in a (co)-sine shape</li>
 			</ul>
 			<br>PEQ file: e.g. from REW EQ tool. This representation uses the "a0=1" convention and 96kHz sampling. Adding the same filter multiple times will stack them. 
 			<br><br>If you want to apply PEQ filters to an arbitrary target curve not from this tool, go to <a href="target_curve_peq.html">Target Curve PEQ tool</a>.<br>
 		</div>
 	</div>
-    
+ 
+<script>
+	const dialogTreatments = {
+
+		liftBackground: {
+			description: "Makes dialog stand out from the soundtrack by reducing low-mid masking and adding a broad speech-presence lift.",
+			filters: [
+				{ f: 320, q: 0.75, db: -1.5 },
+				{ f: 2200, q: 0.80, db: 1.8 }
+			]
+		},
+
+		liftBackgroundStrong: {
+			description: "A stronger dialog-separation treatment for speech that remains difficult to follow.",
+			filters: [
+				{ f: 320, q: 0.75, db: -2.0 },
+				{ f: 2200, q: 0.80, db: 2.5 },
+				{ f: 4500, q: 0.90, db: 1.0 }
+			]
+		},
+
+		liftDialogLevelLow: {
+			description: "Makes dialog stand out more from sound effects and background material by increasing energy across the core vocal range.",
+				filters: [
+				{ f: 1200, q: 0.70, db: 1.5 },
+				{ f: 2200, q: 0.80, db: 2.0 },
+				{ f: 3500, q: 0.90, db: 1.0 }
+				]
+		},
+
+		liftDialogLevelMedium: {
+			description: "Provides a noticeable increase in perceived dialog level while leaving low-frequency effects and most background material unchanged.",
+				filters: [
+				{ f: 1200, q: 0.70, db: 2.0 },
+				{ f: 2200, q: 0.80, db: 2.5 },
+				{ f: 3500, q: 0.90, db: 1.5 }
+				]
+		},
+
+		liftDialogLevelHigh: {
+			description: "Provides a strong increase in perceived dialog level by concentrating additional gain in the vocal range.",
+				filters: [
+				{ f: 1200, q: 0.70, db: 2.5 },
+				{ f: 2200, q: 0.80, db: 3.0 },
+				{ f: 3500, q: 0.90, db: 2.0 }
+				]
+		},
+
+		addWarmth: {
+			description: "Adds body and warmth to voices.",
+			filters: [
+				{ f: 250, q: 0.80, db: 1.5 }
+			]
+		},
+
+		removeWarmth: {
+			description: "Reduces low-mid vocal energy for a leaner, less warm presentation.",
+			filters: [
+				{ f: 250, q: 0.80, db: -1.5 }
+			]
+		},
+
+		reduceBoxiness: {
+			description: "Reduces a hollow or enclosed quality in the voice.",
+			filters: [
+				{ f: 400, q: 0.90, db: -2.0 }
+			]
+		},
+
+		reduceChestiness: {
+			description: "Reduces excessive chest and low-mid vocal energy while retaining vocal body.",
+			filters: [
+				{ f: 250, q: 0.80, db: -1.5 },
+				{ f: 500, q: 0.80, db: -1.0 }
+			]
+		},
+
+		addPresence: {
+			description: "Moves dialog slightly forward by emphasizing the broad speech-presence region.",
+			filters: [
+				{ f: 2200, q: 0.80, db: 1.5 }
+			]
+		},
+
+		addPresenceStrong: {
+			description: "Provides a stronger speech-presence enhancement when dialog remains difficult to follow.",
+			filters: [
+				{ f: 2200, q: 0.80, db: 2.5 }
+			]
+		},
+
+		consonantClarity: {
+			description: "Emphasizes articulation and consonant definition without strongly changing overall tonal balance.",
+			filters: [
+				{ f: 2500, q: 0.80, db: 1.5 },
+				{ f: 4500, q: 0.90, db: 0.7 }
+			]
+		},
+
+		speechDefinition: {
+			description: "Broadens the increase in upper-midrange energy for speech that sounds indistinct.",
+			filters: [
+				{ f: 1800, q: 0.80, db: 1.2 },
+				{ f: 3500, q: 0.90, db: 1.0 }
+			]
+		},
+
+		softenSibilance: {
+			description: "Reduces upper-frequency energy to make S and SH sounds less prominent.",
+			filters: [
+				{ f: 6000, q: 1.00, db: -1.5 }
+			]
+		},
+
+		restoreArticulation: {
+			description: "Adds a small amount of upper-presence energy to recover articulation without substantially increasing brightness.",
+			filters: [
+				{ f: 4500, q: 0.90, db: 1.0 }
+			]
+		},
+
+		addAir: {
+			description: "Adds subtle high-frequency openness and detail. This affects perceived openness more than core intelligibility.",
+			filters: [
+				{ f: 8000, q: 0.70, db: 1.0 }
+			]
+		},
+
+		reduceBrightness: {
+			description: "Reduces upper-mid/high-frequency energy when dialog sounds overly bright or aggressive.",
+			filters: [
+				{ f: 5000, q: 0.80, db: -1.5 }
+			]
+		},
+
+		dialogMild: {
+			description: "A subtle general-purpose dialog enhancement that reduces low-mid masking and adds a restrained presence lift.",
+			filters: [
+				{ f: 320, q: 0.75, db: -1.0 },
+				{ f: 2200, q: 0.80, db: 1.2 },
+				{ f: 4500, q: 0.90, db: 0.4 }
+			]
+		},
+
+		dialogModerate: {
+			description: "The default general-purpose dialog enhancement. Provides a broad presence increase while retaining natural vocal body.",
+			filters: [
+				{ f: 320, q: 0.75, db: -1.5 },
+				{ f: 2200, q: 0.80, db: 1.8 },
+				{ f: 4500, q: 0.90, db: 0.7 }
+			]
+		},
+
+		dialogStrong: {
+			description: "A stronger dialog enhancement for difficult material or listening conditions.",
+			filters: [
+				{ f: 320, q: 0.75, db: -2.0 },
+				{ f: 2200, q: 0.80, db: 2.5 },
+				{ f: 4500, q: 0.90, db: 1.0 }
+			]
+		}
+	};
+
+
+	const dialogTreatmentSelect = document.getElementById("dialogTreatment");
+	const dialogDescription = document.getElementById("dialogDescription");
+	const dialogFilters = document.getElementById("dialogFilters");
+	const addDialogTreatment = document.getElementById("addDialogTreatment");
+
+
+	/*
+	 * Preview the selected treatment.
+	 *
+	 * Nothing is added to #peq here.
+	 */
+	dialogTreatmentSelect.addEventListener("change", function() {
+
+		const treatment = dialogTreatments[this.value];
+
+		if (!treatment) {
+			dialogDescription.textContent =
+				"Select a filter to see what it does.";
+
+			dialogFilters.innerHTML = "";
+
+			addDialogTreatment.disabled = true;
+
+			return;
+		}
+
+
+		dialogDescription.textContent =
+			treatment.description;
+
+
+		dialogFilters.innerHTML = "Filter details:<br>"+
+			treatment.filters
+				.map(filter => {
+					const gain =
+						filter.db >= 0
+							? `+${filter.db}`
+							: filter.db;
+
+					return `<div>
+						peak(${filter.f} Hz,
+						Q ${filter.q},
+						${gain} dB)
+					</div>`;
+				})
+				.join("");
+
+
+		addDialogTreatment.disabled = false;
+	});
+
+
+	/*
+	 * Explicitly add the selected treatment to the PEQ.
+	 */
+	addDialogTreatment.addEventListener("click", function() {
+
+		const treatment =
+			dialogTreatments[dialogTreatmentSelect.value];
+
+		if (!treatment) {
+			return;
+		}
+
+
+		const peq =
+			document.getElementById("peq");
+
+
+		treatment.filters.forEach(filter => {
+
+			peq.value +=
+				biquadToText(
+					peakFilter(
+						filter.f,
+						filter.q,
+						filter.db
+					)
+				);
+
+		});
+	});
+</script>
+
 </body>
 </html>
