@@ -27,7 +27,7 @@
 				<label for="peq">Paste a 96kHz biquad PEQ file (example: <a href="" onclick="document.getElementById('peq').value=biquadToText(peakFilter(200,1,3),1); return false;")>+3dB at 200Hz with Q=1</a>):</label><br>
 				<textarea id="peq" rows="20" cols="50" style="width:780px; margin-top: 15px;"></textarea><br>
 			</div>
-			<button type="button" onclick="generateCombinedText()" class="full-width" id="generatebutton">Generate new target curve</button>
+			<button type="button" onclick="generateCombinedText(document.getElementById('targetcurve').value, document.getElementById('peq').value)" class="full-width" id="generatebutton">Generate new target curve</button>
 		</form>
 		<div></div>
 		<!-- Output text field, download button and chart-->

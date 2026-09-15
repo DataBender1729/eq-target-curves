@@ -168,7 +168,7 @@ function removeRedundant(values) {
 }
 
 
-function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost) {
+function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse) {
 	// create a hz schedule
 	schedule = hzScheduleOctaves(startHz, endHz, octaveSteps);
 	// get the values
@@ -176,26 +176,6 @@ function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz
 	values = values.concat(intermediateValues(curveTypeMid, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, 20, schedule));
 	values = values.concat(intermediateValues(curveTypeHigh, highCutoffHz, highCutoffdB, endHz, enddB, 20, schedule));
 	values.push([endHz, enddB]);
-	// apply dialog boost
-	switch (dialogBoost) {
-		case "low":
-			values = applyFilter(values, peakFilter(320, 0.75, -1.0))
-			values = applyFilter(values, peakFilter(2200, 0.8, +1.2))
-			values = applyFilter(values, peakFilter(4500, 0.9, +0.4))
-			break;
-		case "medium":
-			values = applyFilter(values, peakFilter(320, 0.75, -1.5))
-			values = applyFilter(values, peakFilter(2200, 0.8, +1.8))
-			values = applyFilter(values, peakFilter(4500, 0.9, +0.7))
-			break;
-		case "high":
-			values = applyFilter(values, peakFilter(320, 0.75, -2.0))
-			values = applyFilter(values, peakFilter(2200, 0.8, +2.5))
-			values = applyFilter(values, peakFilter(4500, 0.9, +1.0))
-			break;
-		default:
-			break;		
-	}
 	// remove redundant points
 	if (sparse) {
 		values = removeRedundant(values);
@@ -203,22 +183,22 @@ function generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz
 	return values;
 }
 
-function generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost) {
+function generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, peqs, addDate) {
 	sparseText = sparse ? "-sparse" : "";
-	return `EQ-TargetCurve-(${startHz},${startdB})-${curveTypeLow}-(${lowCutoffHz},${lowCutoffdB})-${curveTypeMid}-(${highCutoffHz},${highCutoffdB})-${curveTypeHigh}-(${endHz},${enddB})-${octaveSteps}steps${sparseText}-dialog-${dialogBoost}.targetcurve`
+	peqText = peqs != "" ? "-PEQed" : "";
+	dateText = addDate ? "-" + new Date().toISOString() : "";
+return `EQ-TargetCurve-(${startHz},${startdB})-${curveTypeLow}-(${lowCutoffHz},${lowCutoffdB})-${curveTypeMid}-(${highCutoffHz},${highCutoffdB})-${curveTypeHigh}-(${endHz},${enddB})-${octaveSteps}steps${sparseText}${peqText}${dateText}.targetcurve`
 }
 
 function valuesToText(values) {
 	return values.map((x) => `${+x[0].toFixed(2)} ${+x[1].toFixed(5)}`).join('\n');
 }
 
-function generateText() {
+function generateText(peqs = "") {
 	document.getElementById('downloadbutton').disabled=true;
-	
 	// Retrieve input values
 	const octaveSteps = Math.max(0,Math.min(100, parseFloat(document.getElementById('octaveSteps').value)));
 	const sparse = document.getElementById('sparse').checked;
-	const dialogBoost = document.getElementById('dialogBoost').value;
 	const startHz = parseFloat(document.getElementById('startHz').value);
 	const lowCutoffHz = parseFloat(document.getElementById('lowCutoffHz').value);
 	const highCutoffHz = parseFloat(document.getElementById('highCutoffHz').value);
@@ -240,12 +220,12 @@ function generateText() {
 	}
 	
 	//Compute Hz/dB values
-	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost)
-	document.getElementById('filename').value = generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, dialogBoost)
+	values = generateValues(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse)
+	document.getElementById('filename').value = generateName(startHz, startdB, lowCutoffHz, lowCutoffdB, highCutoffHz, highCutoffdB, endHz, enddB, curveTypeLow, curveTypeMid, curveTypeHigh, octaveSteps, sparse, peqs, true)
 	valuesText = valuesToText(values)
 	
 	// Create textual representation (you can customize this part)
-	const representation = 
+	var representation = 
 `NAME
 EQ Target Curve Generator - https://databender1729.github.io/eq-target-curves/
 DEVICENAME
@@ -257,6 +237,11 @@ ${startHz}
 HIGHLIMITHZ
 ${endHz}`;
 
+	// apply peq if present
+	if (peqs != "") {
+
+		representation = computeCombinedText(readTargetCurve(representation), readPEQs(peqs))
+	}
 	// Assign to output field and draw chart
 	document.getElementById('output').value = representation;
 	drawChart(values)
@@ -359,10 +344,7 @@ function readTargetCurve(textRepresentation) {
 	return target
 }
 
-function generateCombinedText() {
-	document.getElementById('downloadbutton').disabled=true;
-	var target = readTargetCurve(document.getElementById('targetcurve').value)
-	var peqs = readPEQs(document.getElementById('peq').value)
+function computeCombinedText(target, peqs) {
 	breakpoints = target["breakpoints"]
 	outputText = target["preamble"] + "\n"
 	values = []
@@ -377,6 +359,14 @@ function generateCombinedText() {
 		values.push([f, dB])
 	}
 	outputText = outputText + target["appendix"] 
+	return outputText;
+}
+
+function generateCombinedText(target_input, peq_input) {
+	document.getElementById('downloadbutton').disabled=true;
+	var target = readTargetCurve(target_input)
+	var peqs = readPEQs(peq_input)
+	outputText = computeCombinedText(target, peqs)
 	document.getElementById('output').value = outputText
 	drawChart(values)
 	document.getElementById('filename').value = "EQ-TargetCurve-PEQed-" + new Date().toISOString() +  ".targetcurve"
@@ -418,14 +408,14 @@ function peakFilter(f, q, g) {
 	return peq
 }
 
-function biquadToText(peq, n) {
+function biquadToText(peq, n=-1) {
 	var orderedKeys
 	if ("a0" in peq) {
 		orderedKeys = ["b0", "b1", "b2", "a0", "a1", "a2"]
 	} else {
 		orderedKeys = ["b0", "b1", "b2", "a1", "a2"]
 	}
-	output = "biquad" + n + ",\n"
+	output = "biquad" + (n > 0 ? n: "") + ",\n"
 	for (key of orderedKeys) {
 		output = output + key + "=" + peq[key]+ ",\n"
 	}
